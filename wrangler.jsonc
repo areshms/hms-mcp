@@ -1,0 +1,9 @@
+{
+  "name": "hms-mcp",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-11-01",
+  "services": [
+    { "binding": "RE_DATA_REFINERY", "service": "re-data-refinery", "environment": "production" },
+    { "binding": "STOREFRONT_DATA_HMS", "service": "storefront-data-hms", "environment": "production" }
+  ]
+}

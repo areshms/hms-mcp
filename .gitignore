@@ -1,0 +1,5 @@
+.wrangler/
+mcp-so-listing.md
+final-report.json
+.DS_Store
+node_modules/
