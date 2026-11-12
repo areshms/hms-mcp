@@ -114,16 +114,24 @@ async function callTool(name, args, env) {
 
   if (resp.status === 402) {
     // Tokenless passthrough: surface the challenge, agent settles with the origin.
-    let parsed = bodyText;
-    try { parsed = JSON.stringify(JSON.parse(bodyText), null, 2); } catch (_) {}
+    // Also relay the x402 v2 challenge (PAYMENT-REQUIRED header, base64 JSON) so the
+    // agent sees accepts[] (network + atomic amount) without fetching the origin twice.
+    const prHeader = resp.headers.get("payment-required") ?? resp.headers.get("PAYMENT-REQUIRED") ?? "";
+    let challengeV2 = null;
+    try {
+      const norm = prHeader.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (prHeader.length % 4)) % 4);
+      challengeV2 = JSON.parse(atob(norm));
+    } catch (_) {}
     const result = {
       content: [{
         type: "text",
         text: JSON.stringify({
           status: 402,
           payment_required: JSON.parse(bodyText) || bodyText,
+          ...(challengeV2 ? { challenge_v2: challengeV2 } : {}),
           origin_url: built.target,
           price_usd: t.price ?? null,
+          atomic_amount: challengeV2?.accepts?.[0]?.amount ?? null,
           how_to_pay: "Use an x402 client (USDC on Base). Retry this same tool with x402_payment set to the X-PAYMENT header value you produced for this exact origin_url.",
         }, null, 2),
       }],

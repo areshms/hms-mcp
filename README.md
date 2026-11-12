@@ -61,6 +61,10 @@ curl -s -X POST https://hms-mcp.ares-hms.workers.dev/mcp -H 'content-type: appli
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
 ```
 
+## Known limitation
+
+Cloudflare's workers.dev edge bans the bare `Python-urllib/x` client signature (error 1010, `browser_signature_banned`) across all `*.workers.dev` hosts — this is zone-level, not something this worker can allowlist. Python clients that send any normal `User-Agent` (e.g. requests with a browser-like UA) are unaffected.
+
 ## License
 
 MIT
